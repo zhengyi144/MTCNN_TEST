@@ -111,10 +111,10 @@ def train(net_factory,prefix,end_epoch,base_dir,base_lr=0.01,net='PNet'):
                 
                 image_batch_array,landmark_batch_array = random_flip_images(image_batch_array,label_batch_array,landmark_batch_array)
                 print(label_batch_array)
-                """print(image_batch_array.shape)
-                print(label_batch_array.shape)
-                print(bbox_batch_array.shape)
-                print(landmark_batch_array.shape)"""
+                #print(image_batch_array.shape)
+                #print(label_batch_array.shape)
+                #print(bbox_batch_array)
+                #print(landmark_batch_array)
                 _,_ = sess.run([train_op,lr_op], feed_dict={input_image: image_batch_array, label: label_batch_array, bbox_target: bbox_batch_array,landmark_target:landmark_batch_array})
                 
                 if (step)%50==0:

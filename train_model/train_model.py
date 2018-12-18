@@ -35,13 +35,13 @@ def classification_loss(cls_prob,label):
     zeros = tf.zeros_like(label_prob, dtype=tf.float32)
     ones = tf.ones_like(label_prob,dtype=tf.float32)
     # set pos and neg to be 1, rest to be 0
-    valid_inds = tf.where(label < 0,zeros,ones)  #与label_filter_invalid是一样的
+    valid_inds = tf.where(label < 0,zeros,ones)  #将label<0的样本设置为无效样本
     num_valid=tf.reduce_sum(valid_inds)       #累计positive和negative有效样本的个数     
     
     keep_num = tf.cast(num_valid*num_keep_radio,dtype=tf.int32)
-
     loss=loss*valid_inds
-    loss,_=tf.nn.top_k(loss,k=keep_num)     #剔除一部分loss
+    loss=tf.cond(tf.less_equal(num_valid,0),lambda:tf.constant(0,dtype=tf.float32),lambda:tf.nn.top_k(loss,k=keep_num)[0])
+    #loss,_=tf.nn.top_k(loss,k=keep_num)     #剔除一部分loss
     return tf.reduce_mean(loss)
 
 def boundingbox_loss(bbox_pred,bbox_target,label):
@@ -73,6 +73,8 @@ def landmark_loss(landmark_pred,landmark_target,label):
     square_error=tf.square(landmark_pred-landmark_target)
     square_error=tf.reduce_sum(square_error,axis=1)
     num_valid = tf.reduce_sum(valid_index)
+    if tf.less_equal(num_valid,0) is True:
+        return 0
     #keep_num = tf.cast(num_valid*num_keep_radio,dtype=tf.int32)
     keep_num = tf.cast(num_valid, dtype=tf.int32)
     #剔除非landmark的样本
