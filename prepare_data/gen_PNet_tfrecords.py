@@ -41,7 +41,7 @@ def get_dataset(data_dir,net='PNet'):
         data_example=dict()
         bbox=dict()
         data_example['filename']=info[0]
-        print(data_example['filename'])
+        #print(data_example['filename'])
         data_example['label']=int(info[1])
         bbox['xmin'] = 0
         bbox['ymin'] = 0

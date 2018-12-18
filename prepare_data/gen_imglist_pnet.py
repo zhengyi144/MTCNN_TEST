@@ -32,7 +32,7 @@ def gen_image_list(data_dir,size=12):
     with open(os.path.join(dir_path,"%s"%(net),"train_%s_landmark.txt"%(net)),"w") as f:
         nums=[len(neg),len(pos),len(part)]
         #ratio=[3,1,1]
-        base_num=250000
+        base_num=2000
         print(nums)
 
         #shuffle the order of the initial data

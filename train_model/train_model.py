@@ -81,7 +81,24 @@ def landmark_loss(landmark_pred,landmark_target,label):
     square_error = tf.gather(square_error, k_index)
     return tf.reduce_mean(square_error)
 
-
+def cal_accuracy(cls_prob,label):
+    """
+      acc=(TP+FP)/total
+    """
+    # get the index of maximum value along axis one from cls_prob
+    # 0 for negative 1 for positive
+    pred = tf.argmax(cls_prob,axis=1)   #各行最大值索引
+    label_int = tf.cast(label,tf.int64)
+    # return the index of pos and neg examples
+    cond = tf.where(tf.greater_equal(label_int,0))  #greater_equal表示>=
+    picked = tf.squeeze(cond)          #降维
+    # gather the label of pos and neg examples
+    label_picked = tf.gather(label_int,picked)    
+    pred_picked = tf.gather(pred,picked)
+    #calculate the mean value of a vector contains 1 and 0, 1 for correct classification, 0 for incorrect
+    # ACC = (TP+FP)/total population
+    accuracy_op = tf.reduce_mean(tf.cast(tf.equal(label_picked,pred_picked),tf.float32))
+    return accuracy_op
 
 
 def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True):
@@ -126,7 +143,14 @@ def P_Net(inputs,label=None,bbox_target=None,landmark_target=None,training=True)
             lm_loss=landmark_loss(landmark_pred,landmark_target,label)
 
             accuracy=cal_accuracy(cls_prob,label)
-
+            l2_loss=tf.add_n(slim.losses.get_regularization_losses())
+            return cls_loss,bbox_loss,lm_loss,l2_loss,accuracy
+        else:
+            #when test,batch_size = 1
+            cls_pro_test = tf.squeeze(conv4, axis=0)
+            bbox_pred_test = tf.squeeze(bbox_pred,axis=0)
+            landmark_pred_test = tf.squeeze(landmark_pred,axis=0)
+            return cls_pro_test,bbox_pred_test,landmark_pred_test
 
 
 
